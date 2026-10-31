@@ -147,27 +147,27 @@ impl SarifFormatter {
                 ));
             }
 
-            if let Some(fs) = layout.metrics.false_sharing.as_ref() {
-                if !fs.warnings.is_empty() || !fs.spanning_warnings.is_empty() {
-                    used_rules.insert(RULE_FALSE_SHARING);
-                    let warning_count = fs.warnings.len();
-                    let spanning_count = fs.spanning_warnings.len();
-                    let message = format!(
-                        "Struct {} has {} potential false sharing warning(s) and {} cache-line spanning atomic(s)",
-                        layout.name, warning_count, spanning_count
-                    );
-                    results.push(make_result(
-                        RULE_FALSE_SHARING,
-                        "warning",
-                        message,
-                        layout.source_location.as_ref(),
-                        Some(json!({
-                            "struct": layout.name,
-                            "false_sharing_warnings": warning_count,
-                            "spanning_warnings": spanning_count,
-                        })),
-                    ));
-                }
+            if let Some(fs) = layout.metrics.false_sharing.as_ref()
+                && (!fs.warnings.is_empty() || !fs.spanning_warnings.is_empty())
+            {
+                used_rules.insert(RULE_FALSE_SHARING);
+                let warning_count = fs.warnings.len();
+                let spanning_count = fs.spanning_warnings.len();
+                let message = format!(
+                    "Struct {} has {} potential false sharing warning(s) and {} cache-line spanning atomic(s)",
+                    layout.name, warning_count, spanning_count
+                );
+                results.push(make_result(
+                    RULE_FALSE_SHARING,
+                    "warning",
+                    message,
+                    layout.source_location.as_ref(),
+                    Some(json!({
+                        "struct": layout.name,
+                        "false_sharing_warnings": warning_count,
+                        "spanning_warnings": spanning_count,
+                    })),
+                ));
             }
         }
 

@@ -95,16 +95,16 @@ impl BinaryData {
 
             // Try .debug_* first, then .zdebug_*
             for name in [&debug_name, &zdebug_name] {
-                if let Some(section) = object.section_by_name(name) {
-                    if let Ok(Cow::Owned(vec)) = section.uncompressed_data() {
-                        // Leak the string to get a 'static lifetime - this is fine since
-                        // these are a fixed set of section names used for the program lifetime
-                        let static_name: &'static str = match name.as_str() {
-                            n if n == debug_name => leak_section_name(&debug_name),
-                            _ => leak_section_name(&zdebug_name),
-                        };
-                        decompressed_sections.insert(static_name, vec);
-                    }
+                if let Some(section) = object.section_by_name(name)
+                    && let Ok(Cow::Owned(vec)) = section.uncompressed_data()
+                {
+                    // Leak the string to get a 'static lifetime - this is fine since
+                    // these are a fixed set of section names used for the program lifetime
+                    let static_name: &'static str = match name.as_str() {
+                        n if n == debug_name => leak_section_name(&debug_name),
+                        _ => leak_section_name(&zdebug_name),
+                    };
+                    decompressed_sections.insert(static_name, vec);
                 }
             }
         }

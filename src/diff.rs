@@ -171,10 +171,10 @@ fn location_key(s: &StructLayout) -> Option<(&str, u64)> {
 
 fn member_similarity_score(old: &StructLayout, new: &StructLayout) -> i64 {
     // If both have source locations and they disagree, heavily penalize to avoid cross-matching.
-    if let (Some(ol), Some(nl)) = (location_key(old), location_key(new)) {
-        if ol != nl {
-            return LOCATION_MISMATCH_PENALTY;
-        }
+    if let (Some(ol), Some(nl)) = (location_key(old), location_key(new))
+        && ol != nl
+    {
+        return LOCATION_MISMATCH_PENALTY;
     }
 
     let mut score: i64 = 0;

@@ -360,16 +360,16 @@ impl<'a> DwarfContext<'a> {
                     }
                 } else if let Some(raw_bit_offset) = dwarf4_bit_offset {
                     // Use checked_add to avoid overflow in boundary check.
-                    if let Some(end_bit) = raw_bit_offset.checked_add(bit_size) {
-                        if end_bit <= storage_bits {
-                            let bit_offset = match self.endian {
-                                gimli::RunTimeEndian::Little => {
-                                    storage_bits - raw_bit_offset - bit_size
-                                }
-                                gimli::RunTimeEndian::Big => raw_bit_offset,
-                            };
-                            member.bit_offset = Some(bit_offset);
-                        }
+                    if let Some(end_bit) = raw_bit_offset.checked_add(bit_size)
+                        && end_bit <= storage_bits
+                    {
+                        let bit_offset = match self.endian {
+                            gimli::RunTimeEndian::Little => {
+                                storage_bits - raw_bit_offset - bit_size
+                            }
+                            gimli::RunTimeEndian::Big => raw_bit_offset,
+                        };
+                        member.bit_offset = Some(bit_offset);
                     }
                 }
             }
@@ -462,13 +462,13 @@ impl<'a> DwarfContext<'a> {
             self.dwarf.attr_string(unit, file.path_name()).ok()?.to_string_lossy().into_owned();
 
         // Try to get the directory
-        if let Some(dir) = file.directory(header) {
-            if let Ok(dir_str) = self.dwarf.attr_string(unit, dir) {
-                let dir_name = dir_str.to_string_lossy();
-                if !dir_name.is_empty() {
-                    // Combine directory and file name
-                    return Some(format!("{}/{}", dir_name, file_name));
-                }
+        if let Some(dir) = file.directory(header)
+            && let Ok(dir_str) = self.dwarf.attr_string(unit, dir)
+        {
+            let dir_name = dir_str.to_string_lossy();
+            if !dir_name.is_empty() {
+                // Combine directory and file name
+                return Some(format!("{}/{}", dir_name, file_name));
             }
         }
 
