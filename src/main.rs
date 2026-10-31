@@ -152,10 +152,8 @@ fn run_inspect(config: &InspectConfig<'_>) -> Result<()> {
 
     match config.sort_by {
         SortField::Name => layouts.sort_by(|a, b| a.name.cmp(&b.name)),
-        SortField::Size => layouts.sort_by(|a, b| b.size.cmp(&a.size)),
-        SortField::Padding => {
-            layouts.sort_by(|a, b| b.metrics.padding_bytes.cmp(&a.metrics.padding_bytes))
-        }
+        SortField::Size => layouts.sort_by_key(|l| std::cmp::Reverse(l.size)),
+        SortField::Padding => layouts.sort_by_key(|l| std::cmp::Reverse(l.metrics.padding_bytes)),
         SortField::PaddingPct => layouts.sort_by(|a, b| {
             match (a.metrics.padding_percentage.is_nan(), b.metrics.padding_percentage.is_nan()) {
                 (true, true) => std::cmp::Ordering::Equal,
@@ -677,7 +675,7 @@ fn run_suggest(
 
     // Sort by savings if requested
     if sort_by_savings {
-        suggestions_with_locations.sort_by(|(a, _), (b, _)| b.savings_bytes.cmp(&a.savings_bytes));
+        suggestions_with_locations.sort_by_key(|(s, _)| std::cmp::Reverse(s.savings_bytes));
     }
 
     let (suggestions, locations): (Vec<_>, Vec<_>) = suggestions_with_locations.into_iter().unzip();
