@@ -27,6 +27,9 @@ layout-audit inspect ./target/debug/myapp -o json
 
 # SARIF output (for GitHub code scanning)
 layout-audit inspect ./target/debug/myapp -o sarif > layout-audit.sarif
+
+# Warn when atomic fields share a cache line (false sharing)
+layout-audit inspect ./target/debug/myapp --warn-false-sharing
 ```
 
 ## Commands
@@ -44,6 +47,7 @@ budgets:
     max_size: 64
     max_padding: 8
     max_padding_percent: 15.0
+    max_false_sharing_warnings: 0
 
   "hot_path::*":
     max_padding_percent: 5.0
@@ -104,7 +108,7 @@ permissions:
 
 ## Requirements
 
-- Rust **1.85+**
+- Rust **1.88+** (to build from source)
 - Binaries must include DWARF debug info (`-g`)
 - Formats: ELF (Linux), Mach-O (macOS), PE (Windows with MinGW)
 - On macOS, pass the dSYM path: `./binary.dSYM/Contents/Resources/DWARF/binary`
